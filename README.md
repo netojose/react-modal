@@ -1,5 +1,17 @@
 # A lightweight dialog component for React
 
+## Install
+
+```
+npm i @netojose/react-modal
+```
+
+or
+
+```
+yarn add @netojose/react-modal
+```
+
 ## Basic usage
 
 ```js
