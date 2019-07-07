@@ -1,7 +1,7 @@
 {
     "name": "@netojose/react-modal",
     "version": "1.0.0",
-    "description": "React modal",
+    "description": "A lightweight dialog component for React",
     "main": "./dist/index.js",
     "license": "MIT",
     "repository": {
