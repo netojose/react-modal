@@ -4,11 +4,17 @@
     "description": "React modal",
     "main": "./dist/index.js",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/netojose/react-modal.git"
+    },
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "webpack --watch",
         "build": "webpack"
     },
+    "homepage": "https://github.com/netojose/react-modal",
+    "bugs": "https://github.com/netojose/react-modal/issues",
     "author": {
         "name": "José neto",
         "email": "sputinykster@gmail.com"
@@ -30,5 +36,16 @@
         "webpack": "^4.5.0",
         "webpack-cli": "^3.2.1"
     },
-    "dependencies": {}
+    "dependencies": {},
+    "tags": [
+        "react",
+        "modal",
+        "dialog"
+    ],
+    "keywords": [
+        "react",
+        "react-component",
+        "modal",
+        "dialog"
+    ]
 }
