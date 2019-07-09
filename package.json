@@ -9,7 +9,8 @@
         "url": "https://github.com/netojose/react-modal.git"
     },
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "jest",
+        "test:coverage": "jest --coverage",
         "start": "webpack --watch",
         "build": "webpack"
     },
@@ -29,7 +30,11 @@
         "@babel/plugin-proposal-class-properties": "^7.5.0",
         "@babel/preset-env": "^7.5.0",
         "@babel/preset-react": "^7.0.0",
+        "babel-jest": "^24.8.0",
         "babel-loader": "^8.0.6",
+        "enzyme": "^3.10.0",
+        "enzyme-adapter-react-16": "^1.14.0",
+        "jest": "^24.8.0",
         "prop-types": "^15.6.0",
         "react": "^16.0.0",
         "react-dom": "^16.0.0",

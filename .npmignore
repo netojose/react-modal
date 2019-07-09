@@ -1,3 +1,6 @@
 src
+__tests__
 .babelrc
 webpack.config.js
+jest.config.js
+jestSetup.js
