@@ -47,6 +47,8 @@ export default App
 | prop                | Description                                     | type     | default value         | required |
 | ------------------- | ----------------------------------------------- | -------- | --------------------- | -------- |
 | isOpen              | Flag to render or not the modal                 | boolean  | false                 | Yes      |
+| ariaLabelledby      | `aria-labelledby` modal attribute               | string   | null                  | No       |
+| ariaDescribedby     | `aria-describedby` modal attribute              | string   | null                  | No       |
 | onAfterOpen         | Callback after modal open                       | function | () => null            | No       |
 | onAfterClose        | Callback after modal close                      | function | () => null            | No       |
 | onRequestClose      | Callback when a close modal action is triggered | function | () => null            | No       |

@@ -50,8 +50,10 @@ class Modal extends React.Component {
 
     render() {
         const {
-            isOpen,
             children,
+            isOpen,
+            ariaLabelledby,
+            ariaDescribedby,
             overlayClassName,
             modalClassName,
             overlayStyles,
@@ -78,7 +80,13 @@ class Modal extends React.Component {
                 className={overlayClassName}
                 onClick={this._handleOverlayClick}
             >
-                <div style={styleModal} className={modalClassName}>
+                <div
+                    style={styleModal}
+                    className={modalClassName}
+                    role="dialog"
+                    aria-labelledby={ariaLabelledby}
+                    aria-describedby={ariaDescribedby}
+                >
                     {children}
                 </div>
             </div>,
@@ -90,6 +98,8 @@ class Modal extends React.Component {
 Modal.defaultProps = {
     children: null,
     isOpen: false,
+    ariaLabelledby: null,
+    ariaDescribedby: null,
     onAfterOpen: () => null,
     onAfterClose: () => null,
     onRequestClose: () => null,
@@ -106,6 +116,8 @@ Modal.defaultProps = {
 Modal.propTypes = {
     children: propTypes.node,
     isOpen: propTypes.bool,
+    ariaLabelledby: propTypes.string,
+    ariaDescribedby: propTypes.string,
     onAfterOpen: propTypes.func,
     onAfterClose: propTypes.func,
     onRequestClose: propTypes.func,
