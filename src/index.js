@@ -21,6 +21,7 @@ class Modal extends Component {
 
         if (isOpen && !prevIsOpen) {
             this._setFocus()
+            document.addEventListener('keydown', this._watchKeyboard)
             onAfterOpen()
         } else if (!isOpen && prevIsOpen) {
             onAfterClose()
@@ -32,13 +33,21 @@ class Modal extends Component {
         if (parentNode) {
             parentNode.removeChild(this.portalNode)
         }
-        document.removeEventListener('keydown', this._handleEsc)
+        document.removeEventListener('keydown', this._watchKeyboard)
     }
 
-    _handleEsc = e => {
+    _watchKeyboard = e => {
         e = e || window.event
+        const KEY_TAB = 9
+        const KEY_ESC = 27
         const { closeOnEsc } = this.props
-        if (closeOnEsc && e.keyCode === 27) {
+
+        if (e.keyCode === KEY_TAB) {
+            this._handleTabNavigation(e)
+            return
+        }
+
+        if (e.keyCode === KEY_ESC && closeOnEsc) {
             this.props.onRequestClose()
         }
     }
@@ -54,11 +63,45 @@ class Modal extends Component {
         if (!this.props.focusAfterRender) {
             return
         }
-        const els = this.modalRef.current.querySelectorAll(
+        const focusable = this._getFocusable()
+        if (focusable.length > 0) {
+            focusable[0].focus()
+        }
+    }
+
+    _getFocusable = () =>
+        this.modalRef.current.querySelectorAll(
             'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]'
         )
-        if (els.length > 0) {
-            els[0].focus()
+
+    _handleTabNavigation = e => {
+        const focusable = this._getFocusable()
+
+        if (focusable.length < 1) {
+            e.preventDefault()
+            return
+        }
+
+        const firstEl = focusable[0]
+        const lastEl = focusable[focusable.length - 1]
+        const currEl = document.activeElement
+
+        if (e.shiftKey && currEl === firstEl) {
+            e.preventDefault()
+            lastEl.focus()
+            return
+        }
+
+        if (!e.shiftKey && currEl === lastEl) {
+            e.preventDefault()
+            firstEl.focus()
+            return
+        }
+
+        const isValidEl = Array.from(focusable).find(el => el === currEl)
+        if (!isValidEl) {
+            e.preventDefault()
+            firstEl.focus()
         }
     }
 
@@ -82,7 +125,6 @@ class Modal extends Component {
         const containerNode = document.querySelector(container)
         if (!containerNode.contains(this.portalNode)) {
             containerNode.appendChild(this.portalNode)
-            document.addEventListener('keydown', this._handleEsc)
         }
 
         const styleOverlay = { ...overlayCSS, ...overlayStyles }
