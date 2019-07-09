@@ -1,10 +1,10 @@
-import React, { Component, createRef } from 'react'
+import React, { PureComponent, createRef } from 'react'
 import ReactDOM from 'react-dom'
 import propTypes from 'prop-types'
 
 import { overlay as overlayCSS, modal as modalCSS } from './styles'
 
-class Modal extends Component {
+class Modal extends PureComponent {
     constructor(props) {
         super(props)
         this.portalNode = document.createElement('div')
