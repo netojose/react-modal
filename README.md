@@ -1,5 +1,9 @@
 # A lightweight dialog component for React
 
+## Demo
+
+https://codesandbox.io/s/react-modal-example-3km0w
+
 ## Install
 
 ```
