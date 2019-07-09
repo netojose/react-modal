@@ -1,14 +1,15 @@
-import React from 'react'
+import React, { Component, createRef } from 'react'
 import ReactDOM from 'react-dom'
 import propTypes from 'prop-types'
 
 import { overlay as overlayCSS, modal as modalCSS } from './styles'
 
-class Modal extends React.Component {
+class Modal extends Component {
     constructor(props) {
         super(props)
         this.portalNode = document.createElement('div')
         this.portalNode.className = props.portalClassName
+        this.modalRef = createRef()
     }
     componentWillUnmount() {
         this._removePortal()
@@ -19,6 +20,7 @@ class Modal extends React.Component {
         const { isOpen: prevIsOpen } = prevProps
 
         if (isOpen && !prevIsOpen) {
+            this._setFocus()
             onAfterOpen()
         } else if (!isOpen && prevIsOpen) {
             onAfterClose()
@@ -45,6 +47,18 @@ class Modal extends React.Component {
         const { closeOnOverlayClick } = this.props
         if (closeOnOverlayClick && e.target === e.currentTarget) {
             this.props.onRequestClose()
+        }
+    }
+
+    _setFocus = () => {
+        if (!this.props.focusAfterRender) {
+            return
+        }
+        const els = this.modalRef.current.querySelectorAll(
+            'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]'
+        )
+        if (els.length > 0) {
+            els[0].focus()
         }
     }
 
@@ -86,6 +100,7 @@ class Modal extends React.Component {
                     role="dialog"
                     aria-labelledby={ariaLabelledby}
                     aria-describedby={ariaDescribedby}
+                    ref={this.modalRef}
                 >
                     {children}
                 </div>
@@ -98,6 +113,7 @@ class Modal extends React.Component {
 Modal.defaultProps = {
     children: null,
     isOpen: false,
+    focusAfterRender: true,
     ariaLabelledby: null,
     ariaDescribedby: null,
     onAfterOpen: () => null,
@@ -116,6 +132,7 @@ Modal.defaultProps = {
 Modal.propTypes = {
     children: propTypes.node,
     isOpen: propTypes.bool,
+    focusAfterRender: propTypes.bool,
     ariaLabelledby: propTypes.string,
     ariaDescribedby: propTypes.string,
     onAfterOpen: propTypes.func,

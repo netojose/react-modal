@@ -54,6 +54,7 @@ export default App
 | onRequestClose      | Callback when a close modal action is triggered | function | () => null            | No       |
 | closeOnOverlayClick | Flag to request close modal on overlay click    | boolean  | true                  | No       |
 | closeOnEsc          | Flag to request close modal on press esc key    | boolean  | true                  | No       |
+| focusAfterRender    | Flag to modal should be focused after render    | boolean  | true                  | No       |
 | portalClassName     | Portal div class name                           | string   | ReactModal\_\_Portal  | No       |
 | overlayClassName    | Overlay div class name                          | string   | ReactModal\_\_Overlay | No       |
 | modalClassName      | Modal div class name                            | string   | ReactModal\_\_Modal   | No       |
