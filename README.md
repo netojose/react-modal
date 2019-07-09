@@ -15,25 +15,19 @@ yarn add @netojose/react-modal
 ## Basic usage
 
 ```js
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import Modal from '@netojose/react-modal'
 
 function App() {
     const [isOpen, setIsOpen] = useState(false)
+    const openModal = useCallback(() => setIsOpen(true), [])
+    const closeModal = useCallback(() => setIsOpen(false), [])
     return (
         <div>
-            <input
-                type="button"
-                value="Open modal"
-                onClick={() => setIsOpen(true)}
-            />
-            <Modal isOpen={isOpen} onRequestClose={() => setIsOpen(false)}>
+            <input type="button" value="Open modal" onClick={openModal} />
+            <Modal isOpen={isOpen} onRequestClose={closeModal}>
                 <p>This is the modal content</p>
-                <input
-                    type="button"
-                    value="Close modal"
-                    onClick={() => setIsOpen(false)}
-                />
+                <input type="button" value="Close modal" onClick={closeModal} />
             </Modal>
         </div>
     )
