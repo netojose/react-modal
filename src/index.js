@@ -24,6 +24,7 @@ class Modal extends Component {
             document.addEventListener('keydown', this._watchKeyboard)
             onAfterOpen()
         } else if (!isOpen && prevIsOpen) {
+            this._removePortal()
             onAfterClose()
         }
     }
@@ -117,8 +118,8 @@ class Modal extends Component {
             modalStyles,
             container
         } = this.props
+
         if (!isOpen) {
-            this._removePortal()
             return null
         }
 
