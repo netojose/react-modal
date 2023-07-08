@@ -34,7 +34,7 @@
         "babel-loader": "^8.0.6",
         "enzyme": "^3.10.0",
         "enzyme-adapter-react-16": "^1.14.0",
-        "jest": "^24.8.0",
+        "jest": "^29.6.1",
         "prop-types": "^15.6.0",
         "react": "^16.0.0",
         "react-dom": "^16.0.0",
