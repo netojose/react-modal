@@ -1,3 +1,5 @@
-module.exports = {
-    setupFilesAfterEnv: ['./jestSetup.js']
-}
+const config = {
+    testEnvironment: "jsdom",
+};
+
+module.exports = config;

@@ -1,148 +1,291 @@
-import { mount } from 'enzyme'
+import { act, render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
+import userEvent from '@testing-library/user-event'
 import React from 'react'
 import Modal from '../src/index'
 
+const mockOnAfterOpen = jest.fn()
+const mockOnAfterClose = jest.fn()
+const mockOnRequestClose = jest.fn()
+
+afterEach(() => {
+    jest.clearAllMocks()
+})
+
 test('Not render when isOpen is false', () => {
-    const wrapper = mount(<Modal isOpen={false}>Modal content</Modal>)
-    expect(wrapper.html()).toBeNull()
-    wrapper.unmount()
+    render(<Modal isOpen={false}>Modal content</Modal>)
+
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument()
 })
 
 test('Check for modal content', () => {
-    const modalContent = 'Modal content'
-    const wrapper = mount(<Modal isOpen={true}>{modalContent}</Modal>)
-    expect(wrapper.find('div[role="dialog"]').text()).toEqual(modalContent)
-    wrapper.unmount()
+    render(<Modal isOpen>Modal content</Modal>)
+
+     expect(screen.queryByText('Modal content')).toBeInTheDocument()
 })
 
 test('Check if portal is created', () => {
-    const wrapper = mount(<Modal isOpen={true}>Modal content</Modal>)
-    const hasPortal =
-        document.body.getElementsByClassName('ReactModal__Portal').length === 1
-    expect(hasPortal).toBeTruthy()
-    wrapper.unmount()
+    render(<Modal isOpen>Modal content</Modal>)
+
+    const overlayElement = screen.getByText('Modal content').parentElement
+    const portalElement = overlayElement.parentElement
+
+    expect(portalElement).toBeInTheDocument()
+    expect(portalElement).toHaveClass('ReactModal__Portal')
 })
 
 test('Check if portal is removed', () => {
-    const wrapper = mount(<Modal isOpen={true}>Modal content</Modal>)
-    expect(
-        document.body.getElementsByClassName('ReactModal__Portal').length === 1
-    ).toBeTruthy()
+    const { unmount } = render(<Modal isOpen={true}>Modal content</Modal>)
 
-    wrapper.unmount()
+    const overlayElement = screen.getByText('Modal content').parentElement
+    const portalElement = overlayElement.parentElement
 
-    expect(
-        document.body.getElementsByClassName('ReactModal__Portal').length === 0
-    ).toBeTruthy()
+    expect(portalElement).toBeInTheDocument()
+    expect(portalElement).toHaveClass('ReactModal__Portal')
+
+    unmount()
+
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument()
 })
 
 test('Check for onAfterOpen callback', () => {
-    const mockOnAfterOpen = jest.fn()
-    const wrapper = mount(
-        <Modal isOpen={false} onAfterOpen={mockOnAfterOpen}>
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen} onAfterOpen={mockOnAfterOpen}>
             Modal content
         </Modal>
     )
+    const { rerender } = render(openModal(false))
 
     expect(mockOnAfterOpen.mock.calls.length).toBe(0)
-    wrapper.setProps({ isOpen: true })
-    expect(mockOnAfterOpen.mock.calls.length).toBe(1)
-    wrapper.setProps({ isOpen: false })
+
+    rerender(openModal(true))
+
     expect(mockOnAfterOpen.mock.calls.length).toBe(1)
 
-    wrapper.unmount()
+    rerender(openModal(false))
+
+    expect(mockOnAfterOpen.mock.calls.length).toBe(1)
 })
 
 test('Check for onAfterClose callback', () => {
-    const mockOnAfterClose = jest.fn()
-    const wrapper = mount(
-        <Modal isOpen={false} onAfterClose={mockOnAfterClose}>
+    const openModal = (isOpen) => (
+      <Modal isOpen={isOpen} onAfterClose={mockOnAfterClose}>
             Modal content
-        </Modal>
+      </Modal>
     )
+    const { rerender } = render(openModal(false))
 
     expect(mockOnAfterClose.mock.calls.length).toBe(0)
-    wrapper.setProps({ isOpen: true })
+
+    rerender(openModal(true))
+
     expect(mockOnAfterClose.mock.calls.length).toBe(0)
-    wrapper.setProps({ isOpen: false })
+
+    rerender(openModal(false))
+
     expect(mockOnAfterClose.mock.calls.length).toBe(1)
-
-    wrapper.unmount()
 })
 
-test('Check for onRequestClose callback', () => {
-    const wrapper = mount(<Modal isOpen={false}>Modal content</Modal>)
+test('Check for onRequestClose callback', async () => {
+    const openModal = (isOpen) => <Modal isOpen={isOpen}>Modal content</Modal>
+    const { rerender } = render(openModal(false))
 
-    wrapper.setProps({ isOpen: true })
-    document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 27 }))
+    rerender(openModal(true))
 
-    const mockOnRequestClose = jest.fn()
+    await act(async () => {
+        await userEvent.keyboard('{Escape}')
+    })
 
-    wrapper.setProps({ onRequestClose: mockOnRequestClose })
-    expect(mockOnRequestClose.mock.calls.length).toBe(0)
-    document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 27 }))
-    expect(mockOnRequestClose.mock.calls.length).toBe(1)
-
-    wrapper.unmount()
-})
-
-test('Check onRequestClose on click overlay', () => {
-    const mockOnRequestClose = jest.fn()
-    const wrapper = mount(
-        <Modal isOpen={false} onRequestClose={mockOnRequestClose}>
+    rerender(
+        <Modal isOpen onRequestClose={mockOnRequestClose}>
             Modal content
         </Modal>
     )
 
-    wrapper.setProps({ isOpen: true })
     expect(mockOnRequestClose.mock.calls.length).toBe(0)
-    wrapper.find('.ReactModal__Overlay').simulate('click')
+
+    await act(async () => {
+        await userEvent.keyboard('{Escape}')
+    })
+
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
-    wrapper.setProps({ closeOnOverlayClick: false })
-    wrapper.find('.ReactModal__Overlay').simulate('click')
+})
+
+test('Check onRequestClose on click overlay', async () => {
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen} onRequestClose={mockOnRequestClose}>
+            Modal content
+        </Modal>
+    )
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(0)
+
+    const overlayElement = screen.getByText('Modal content').parentElement
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 
-    wrapper.unmount()
+    rerender(
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
+            Modal content
+        </Modal>
+    )
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+})
+
+test('Check onRequestClose on click overlay', async () => {
+    const openModal = (isOpen) => (
+      <Modal isOpen={isOpen} onRequestClose={mockOnRequestClose}>
+        Modal content
+      </Modal>
+    )
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(0)
+
+    const overlayElement = screen.getByText('Modal content').parentElement
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+
+    rerender(
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
+            Modal content
+        </Modal>
+    )
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+})
+
+test('Check onRequestClose on click overlay', async () => {
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen} onRequestClose={mockOnRequestClose}>
+            Modal content
+        </Modal>
+    )
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(0)
+
+    const overlayElement = screen.getByText('Modal content').parentElement
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+
+    rerender(
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
+            Modal content
+        </Modal>
+    )
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
 })
 
 test('Check autofocus after open modal', () => {
-    const wrapper = mount(
-        <Modal isOpen={false}>
-            <input id="input" />
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen}>
+            <input id='input' />
         </Modal>
     )
-
-    wrapper.setProps({ isOpen: true })
-    expect(document.activeElement.id).toEqual('input')
-    wrapper.setProps({ isOpen: false, focusAfterRender: false })
-    wrapper.setProps({ isOpen: true })
-    expect(document.activeElement.id).toEqual('')
-
-    wrapper.unmount()
-})
-
-test('Not allow tab navigation while modal is opened', () => {
-    const wrapper = mount(
-        <Modal isOpen={false} focusAfterRender={false}>
-            <input id="input" />
+    const noFocusAfterRenderOpenModal = (isOpen) => (
+        <Modal isOpen={isOpen} focusAfterRender={false}>
+            <input id='input' />
         </Modal>
     )
-    wrapper.setProps({ isOpen: true })
-    expect(document.activeElement.id).toEqual('')
-    document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 9 }))
-    expect(document.activeElement.id).toEqual('input')
-    wrapper.unmount()
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    const inputElement = screen.getByRole('textbox', { name: '' })
+
+    expect(inputElement).toHaveFocus()
+
+    rerender(noFocusAfterRenderOpenModal(false))
+
+    rerender(noFocusAfterRenderOpenModal(true))
+
+    expect(inputElement).not.toHaveFocus()
 })
 
-test('Not allow tab navigation while modal is opened even when modal has no focusable element', () => {
-    const wrapper = mount(
-        <Modal isOpen={false} focusAfterRender={false}>
+test('Not allow tab navigation while modal is opened', async () => {
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen} focusAfterRender={false}>
+            <input id='input' />
+        </Modal>
+    )
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    const inputElement = screen.getByRole('textbox', { name: '' })
+
+    expect(inputElement).not.toHaveFocus()
+
+    await act(async () => {
+        await userEvent.tab()
+    })
+
+    expect(inputElement).toHaveFocus()
+})
+
+test('Not allow tab navigation while modal is opened even when modal has no focusable element', async () => {
+    const openModal = (isOpen) => (
+        <Modal isOpen={isOpen} focusAfterRender={false}>
             Hello
         </Modal>
     )
-    wrapper.setProps({ isOpen: true })
-    expect(document.activeElement.id).toEqual('')
-    document.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 9 }))
-    expect(document.activeElement.id).toEqual('')
-    wrapper.unmount()
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    const element = screen.getByText('Hello')
+
+    expect(element).not.toHaveFocus()
+
+    await act(async () => {
+        await userEvent.tab()
+    })
+
+    expect(element).not.toHaveFocus()
 })
