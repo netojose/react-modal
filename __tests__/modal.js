@@ -1,5 +1,5 @@
-import { act, render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom"
+import { act, render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import Modal from '../src/index'
@@ -9,19 +9,19 @@ const mockOnAfterClose = jest.fn()
 const mockOnRequestClose = jest.fn()
 
 afterEach(() => {
-    jest.clearAllMocks();
+    jest.clearAllMocks()
 })
 
 test('Not render when isOpen is false', () => {
     render(<Modal isOpen={false}>Modal content</Modal>)
 
-    expect(screen.queryByText("Modal content")).not.toBeInTheDocument();
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument()
 })
 
 test('Check for modal content', () => {
     render(<Modal isOpen>Modal content</Modal>)
 
-    expect(screen.queryByText("Modal content")).toBeInTheDocument();
+     expect(screen.queryByText('Modal content')).toBeInTheDocument()
 })
 
 test('Check if portal is created', () => {
@@ -30,22 +30,22 @@ test('Check if portal is created', () => {
     const overlayElement = screen.getByText('Modal content').parentElement
     const portalElement = overlayElement.parentElement
 
-    expect(portalElement).toBeInTheDocument();
-    expect(portalElement).toHaveClass('ReactModal__Portal');
+    expect(portalElement).toBeInTheDocument()
+    expect(portalElement).toHaveClass('ReactModal__Portal')
 })
 
 test('Check if portal is removed', () => {
-    const {unmount} = render(<Modal isOpen={true}>Modal content</Modal>)
+    const { unmount } = render(<Modal isOpen={true}>Modal content</Modal>)
 
     const overlayElement = screen.getByText('Modal content').parentElement
     const portalElement = overlayElement.parentElement
 
-    expect(portalElement).toBeInTheDocument();
+    expect(portalElement).toBeInTheDocument()
     expect(portalElement).toHaveClass('ReactModal__Portal')
 
     unmount()
 
-    expect(screen.queryByText('Modal content')).not.toBeInTheDocument();
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument()
 })
 
 test('Check for onAfterOpen callback', () => {
@@ -54,7 +54,7 @@ test('Check for onAfterOpen callback', () => {
             Modal content
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     expect(mockOnAfterOpen.mock.calls.length).toBe(0)
 
@@ -69,11 +69,11 @@ test('Check for onAfterOpen callback', () => {
 
 test('Check for onAfterClose callback', () => {
     const openModal = (isOpen) => (
-        <Modal isOpen={isOpen} onAfterClose={mockOnAfterClose}>
+      <Modal isOpen={isOpen} onAfterClose={mockOnAfterClose}>
             Modal content
-        </Modal>
+      </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     expect(mockOnAfterClose.mock.calls.length).toBe(0)
 
@@ -87,18 +87,14 @@ test('Check for onAfterClose callback', () => {
 })
 
 test('Check for onRequestClose callback', async () => {
-    const openModal = (isOpen) => (
-        <Modal isOpen={isOpen}>
-            Modal content
-        </Modal>
-    )
-    const {rerender} = render(openModal(false))
+    const openModal = (isOpen) => <Modal isOpen={isOpen}>Modal content</Modal>
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
     await act(async () => {
-        await userEvent.keyboard('{Escape}');
-    });
+        await userEvent.keyboard('{Escape}')
+    })
 
     rerender(
         <Modal isOpen onRequestClose={mockOnRequestClose}>
@@ -109,8 +105,8 @@ test('Check for onRequestClose callback', async () => {
     expect(mockOnRequestClose.mock.calls.length).toBe(0)
 
     await act(async () => {
-        await userEvent.keyboard('{Escape}');
-    });
+        await userEvent.keyboard('{Escape}')
+    })
 
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 })
@@ -121,7 +117,7 @@ test('Check onRequestClose on click overlay', async () => {
             Modal content
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
@@ -130,20 +126,61 @@ test('Check onRequestClose on click overlay', async () => {
     const overlayElement = screen.getByText('Modal content').parentElement
 
     await act(async () => {
-        await userEvent.click(overlayElement);
-    });
+        await userEvent.click(overlayElement)
+    })
 
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 
     rerender(
-        <Modal isOpen onRequestClose={mockOnRequestClose} closeOnOverlayClick={false}>
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
             Modal content
         </Modal>
     )
 
     await act(async () => {
-        await userEvent.click(overlayElement);
-    });
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+})
+
+test('Check onRequestClose on click overlay', async () => {
+    const openModal = (isOpen) => (
+      <Modal isOpen={isOpen} onRequestClose={mockOnRequestClose}>
+        Modal content
+      </Modal>
+    )
+    const { rerender } = render(openModal(false))
+
+    rerender(openModal(true))
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(0)
+
+    const overlayElement = screen.getByText('Modal content').parentElement
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
+
+    expect(mockOnRequestClose.mock.calls.length).toBe(1)
+
+    rerender(
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
+            Modal content
+        </Modal>
+    )
+
+    await act(async () => {
+        await userEvent.click(overlayElement)
+    })
 
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 })
@@ -154,7 +191,7 @@ test('Check onRequestClose on click overlay', async () => {
             Modal content
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
@@ -163,53 +200,24 @@ test('Check onRequestClose on click overlay', async () => {
     const overlayElement = screen.getByText('Modal content').parentElement
 
     await act(async () => {
-        await userEvent.click(overlayElement);
-    });
+        await userEvent.click(overlayElement)
+    })
 
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 
     rerender(
-        <Modal isOpen onRequestClose={mockOnRequestClose} closeOnOverlayClick={false}>
+        <Modal
+          isOpen
+          onRequestClose={mockOnRequestClose}
+          closeOnOverlayClick={false}
+        >
             Modal content
         </Modal>
     )
 
     await act(async () => {
-        await userEvent.click(overlayElement);
-    });
-
-    expect(mockOnRequestClose.mock.calls.length).toBe(1)
-})
-
-test('Check onRequestClose on click overlay', async () => {
-    const openModal = (isOpen) => (
-        <Modal isOpen={isOpen} onRequestClose={mockOnRequestClose}>
-            Modal content
-        </Modal>
-    )
-    const {rerender} = render(openModal(false))
-
-    rerender(openModal(true))
-
-    expect(mockOnRequestClose.mock.calls.length).toBe(0)
-
-    const overlayElement = screen.getByText('Modal content').parentElement
-
-    await act(async () => {
-        await userEvent.click(overlayElement);
-    });
-
-    expect(mockOnRequestClose.mock.calls.length).toBe(1)
-
-    rerender(
-        <Modal isOpen onRequestClose={mockOnRequestClose} closeOnOverlayClick={false}>
-            Modal content
-        </Modal>
-    )
-
-    await act(async () => {
-        await userEvent.click(overlayElement);
-    });
+        await userEvent.click(overlayElement)
+    })
 
     expect(mockOnRequestClose.mock.calls.length).toBe(1)
 })
@@ -217,19 +225,19 @@ test('Check onRequestClose on click overlay', async () => {
 test('Check autofocus after open modal', () => {
     const openModal = (isOpen) => (
         <Modal isOpen={isOpen}>
-            <input id="input" />
+            <input id='input' />
         </Modal>
     )
     const noFocusAfterRenderOpenModal = (isOpen) => (
         <Modal isOpen={isOpen} focusAfterRender={false}>
-            <input id="input" />
+            <input id='input' />
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
-    const inputElement = screen.getByRole('textbox', {name: ''})
+    const inputElement = screen.getByRole('textbox', { name: '' })
 
     expect(inputElement).toHaveFocus()
 
@@ -243,20 +251,20 @@ test('Check autofocus after open modal', () => {
 test('Not allow tab navigation while modal is opened', async () => {
     const openModal = (isOpen) => (
         <Modal isOpen={isOpen} focusAfterRender={false}>
-            <input id="input" />
+            <input id='input' />
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
-    const inputElement = screen.getByRole('textbox', {name: ''})
+    const inputElement = screen.getByRole('textbox', { name: '' })
 
     expect(inputElement).not.toHaveFocus()
 
     await act(async () => {
-        await userEvent.tab();
-    });
+        await userEvent.tab()
+    })
 
     expect(inputElement).toHaveFocus()
 })
@@ -267,7 +275,7 @@ test('Not allow tab navigation while modal is opened even when modal has no focu
             Hello
         </Modal>
     )
-    const {rerender} = render(openModal(false))
+    const { rerender } = render(openModal(false))
 
     rerender(openModal(true))
 
@@ -276,8 +284,8 @@ test('Not allow tab navigation while modal is opened even when modal has no focu
     expect(element).not.toHaveFocus()
 
     await act(async () => {
-        await userEvent.tab();
-    });
+        await userEvent.tab()
+    })
 
     expect(element).not.toHaveFocus()
 })
